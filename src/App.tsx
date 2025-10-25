@@ -1,11 +1,20 @@
-import React, {JSX, useState} from 'react';
+import React, { useState } from 'react';
+import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Profile from './pages/Profile';
 import './App.css';
 import logo from './logo.png';
 
-function App(): JSX.Element {
+// Главная страница с загрузкой файлов
+function HomePage() {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isDragOver, setIsDragOver] = useState(false);
-
+    const authContext = useAuth();
+    const user = (authContext as any)?.user;
+    const addProcessedArticle = (authContext as any)?.addProcessedArticle;
     const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file && file.type === 'application/pdf') {
@@ -36,7 +45,14 @@ function App(): JSX.Element {
         }
     };
 
-    // Функция для перехода на сайт МИФИ
+    const handleProcess = () => {
+        if (selectedFile && addProcessedArticle) {
+            addProcessedArticle(selectedFile);
+            alert(`Статья "${selectedFile.name}" успешно обработана!`);
+            setSelectedFile(null);
+        }
+    };
+
     const handleLogoClick = () => {
         window.open('https://mephi.ru/', '_blank');
     };
@@ -51,6 +67,20 @@ function App(): JSX.Element {
                     <div className="title-section">
                         <h1 className="site-title">Сервис обработки научных статей</h1>
                     </div>
+                    {user && (
+                        <div className="user-menu">
+                            <Link to="/profile" className="profile-link">
+                                {(user as any).avatar ? (
+                                    <img src={(user as any).avatar} alt="Avatar" className="header-avatar" />
+                                ) : (
+                                    <div className="header-avatar-placeholder">
+                                        {(user as any).username?.[0]?.toUpperCase() || 'U'}
+                                    </div>
+                                )}
+                                <span>{(user as any).username || 'Пользователь'}</span>
+                            </Link>
+                        </div>
+                    )}
                 </div>
             </header>
 
@@ -97,7 +127,7 @@ function App(): JSX.Element {
                                 <div className="file-details">
                                     <strong>Выбранный файл:</strong> {selectedFile.name}
                                 </div>
-                                <button className="process-button">
+                                <button className="process-button" onClick={handleProcess}>
                                     Обработать статью
                                 </button>
                             </div>
@@ -126,6 +156,36 @@ function App(): JSX.Element {
                 </div>
             </main>
         </div>
+    );
+}
+
+function App() {
+    return (
+        <BrowserRouter>
+            <AuthProvider>
+                <Routes>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route
+                        path="/"
+                        element={
+                            <ProtectedRoute>
+                                <HomePage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/profile"
+                        element={
+                            <ProtectedRoute>
+                                <Profile />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+            </AuthProvider>
+        </BrowserRouter>
     );
 }
 

@@ -339,3 +339,60 @@
         padding: 32px 16px;
     }
 }
+/* Стили для меню пользователя в header */
+.user-menu {
+    margin-left: auto;
+}
+
+.profile-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #1a202c;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    background: rgba(102, 126, 234, 0.05);
+}
+
+.profile-link:hover {
+    background: rgba(102, 126, 234, 0.1);
+    transform: translateY(-2px);
+}
+
+.header-avatar,
+.header-avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #667eea;
+}
+
+.header-avatar-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: 700;
+    font-size: 18px;
+}
+
+@media (max-width: 768px) {
+    .header-container {
+        flex-wrap: wrap;
+    }
+
+    .user-menu {
+        margin-left: 0;
+        width: 100%;
+        margin-top: 12px;
+    }
+
+    .profile-link {
+        justify-content: center;
+    }
+}
