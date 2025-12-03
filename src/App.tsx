@@ -14,6 +14,8 @@ function HomePage() {
     const [isDragOver, setIsDragOver] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [processingStatus, setProcessingStatus] = useState('');
+    const [processingResults, setProcessingResults] = useState<any>(null);
+    const [showResults, setShowResults] = useState(false);
 
     const authContext = useAuth();
     const user = (authContext as any)?.user;
@@ -111,44 +113,13 @@ function HomePage() {
                             fileType: result.file_type,
                             timestamp: new Date().toISOString(),
                             results: result.results,
-                            metadata: result.metadata
+                            meta: result.metadata
                         })
                     );
 
-                    // Формируем красивое сообщение с результатами
-                    let resultsMessage = `✅ СТАТЬЯ УСПЕШНО ОБРАБОТАНА!\n\n`;
-                    resultsMessage += `📄 Файл: ${result.filename}\n`;
-                    resultsMessage += `⏱️  Время обработки: ${result.processing_time}\n\n`;
-                    resultsMessage += `════════════════════════════════\n\n`;
-
-                    // Рубрицирование
-                    if (result.results.rubrics) {
-                        resultsMessage += `📚 РУБРИЦИРОВАНИЕ:\n`;
-                        resultsMessage += `${result.results.rubrics.substring(0, 500)}...\n\n`;
-                    }
-
-                    // Ключевые слова
-                    if (result.results.keywords) {
-                        resultsMessage += `🔑 КЛЮЧЕВЫЕ СЛОВА:\n`;
-                        resultsMessage += `${result.results.keywords.substring(0, 300)}...\n\n`;
-                    }
-
-                    // Резюме
-                    if (result.results.summary) {
-                        resultsMessage += `📖 РЕЗЮМЕ:\n`;
-                        resultsMessage += `${result.results.summary.substring(0, 300)}...\n\n`;
-                    }
-
-                    // Нормализация
-                    if (result.results.normalization) {
-                        resultsMessage += `✨ НОРМАЛИЗАЦИЯ:\n`;
-                        resultsMessage += `${result.results.normalization.substring(0, 300)}...\n\n`;
-                    }
-
-                    resultsMessage += `════════════════════════════════\n`;
-                    resultsMessage += `✨ Все результаты сохранены в вашем профиле!`;
-
-                    alert(resultsMessage);
+                    // Вместо alert, сохраняем результаты и показываем их
+                    setProcessingResults(result);
+                    setShowResults(true);
 
                     setSelectedFile(null);
                     setProcessingStatus('');
@@ -331,6 +302,80 @@ function HomePage() {
                         </div>
                     </div>
                 </div>
+
+                {/* RESULTS SECTION */}
+                {showResults && processingResults && (
+                    <div className="results-section">
+                        <div className="results-container">
+                            <div className="results-header">
+                                <h2>📊 Результаты обработки</h2>
+                                <button
+                                    className="close-results-btn"
+                                    onClick={() => setShowResults(false)}
+                                >
+                                    ✕
+                                </button>
+                            </div>
+
+                            <div className="results-content">
+                                <div className="result-item">
+                                    <h3>📄 Информация о файле</h3>
+                                    <div className="result-text">
+                                        <p><strong>Файл:</strong> {processingResults.filename}</p>
+                                        <p><strong>Тип:</strong> {processingResults.file_type}</p>
+                                        <p><strong>Размер:</strong> {processingResults.metadata?.file_size_kb?.toFixed(2)} KB</p>
+                                        <p><strong>Время обработки:</strong> {processingResults.processing_time}</p>
+                                    </div>
+                                </div>
+
+                                {processingResults.results.rubrics && (
+                                    <div className="result-item">
+                                        <h3>📚 Рубрицирование</h3>
+                                        <div className="result-text">
+                                            {processingResults.results.rubrics}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {processingResults.results.keywords && (
+                                    <div className="result-item">
+                                        <h3>🔑 Ключевые слова</h3>
+                                        <div className="result-text">
+                                            {processingResults.results.keywords}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {processingResults.results.summary && (
+                                    <div className="result-item">
+                                        <h3>📖 Резюме</h3>
+                                        <div className="result-text">
+                                            {processingResults.results.summary}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {processingResults.results.normalization && (
+                                    <div className="result-item">
+                                        <h3>✨ Нормализация</h3>
+                                        <div className="result-text">
+                                            {processingResults.results.normalization}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {processingResults.results.critique && (
+                                    <div className="result-item">
+                                        <h3>💬 Критика</h3>
+                                        <div className="result-text">
+                                            {processingResults.results.critique}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
             </main>
         </div>
     );
