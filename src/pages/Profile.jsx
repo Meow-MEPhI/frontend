@@ -206,6 +206,13 @@ const Profile = () => {
                                 </div>
                             )}
                         </div>
+
+                        {/* КНОПКА НА ГЛАВНУЮ ВНИЗУ */}
+                        <div className="profile-footer">
+                            <button onClick={() => navigate('/')} className="back-to-home-button">
+                                🏠 Вернуться на главную страницу
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
